@@ -1,14 +1,15 @@
 import sys
 import typing
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import QUrl, QAbstractTableModel, QModelIndex
 from PySide6.QtGui import Qt
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QFileDialog
 
 from main_window import Ui_MainWindow
-from solver_options_panel import Ui_Form
+from solver_options_panel import Ui_SolverOptionsPopup
+from planning_waiting_panel import Ui_PlanningProgressPopup
 
 
 class TableModel(QAbstractTableModel):
@@ -46,12 +47,28 @@ class TableModel(QAbstractTableModel):
         return self.table_data[col]
 
 
-class SolverOptionsPopup(QtWidgets.QWidget, Ui_Form):
+class SolverOptionsPopup(QtWidgets.QWidget, Ui_SolverOptionsPopup):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
 
         self.show()
+
+class PlanningProgressPopup(QtWidgets.QWidget, Ui_PlanningProgressPopup):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
+        self.show()
+
+
+class PlanningThread(QtCore.QThread):
+    planning_terminated = QtCore.Signal()
+
+    def run(self):
+        for i in range(500000):
+            print(i)
+        self.planning_terminated.emit()
 
 
 class IRView(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -61,12 +78,26 @@ class IRView(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.solver_options_popup = None
         self.controller = None
+        self.planning_progress_popup = None
 
         self.import_patients_list_button.clicked.connect(self.import_callback)
         self.solver_options_button.clicked.connect(self.open_solver_options_popup)
-        self.launch_planning_button.clicked.connect(self.launch_planning)
+        self.launch_planning_button.clicked.connect(self.on_planning_start)
+
+        self.planning_thread = PlanningThread()
+        self.planning_thread.planning_terminated.connect(self.on_planning_end)
 
         # self.web_engine_view.load(QUrl.fromLocalFile("/ex.html"))
+
+    def on_planning_start(self):
+        self.planning_progress_popup = PlanningProgressPopup()
+        # self.planning_progress_popup.setupUi()
+        # self.planning_progress_popup.show()
+
+        self.planning_thread.start()
+
+    def on_planning_end(self):
+        self.planning_progress_popup.close()
 
     def import_callback(self):
         filepath, _ = QFileDialog.getOpenFileName(filter="File Excel (*.xlsx;*.xls)")
