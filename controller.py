@@ -24,12 +24,12 @@ class Controller():
     def get_new_tab_name(self):
         return self.model.get_new_tab_name()
 
-    def compute_solution(self, tab_name, optimization_completed_event):
-        self.model.compute_solution(tab_name)
-        optimization_completed_event.set()
+    def compute_solution(self, planning_terminated):
+        self.model.compute_solution()
+        planning_terminated.emit()
 
-    def compute_solution_summary(self, tab_name):
-        return self.model.compute_solution_summary(tab_name)
+    def compute_solution_summary(self):
+        return self.model.compute_solution_summary()
 
     def get_patients_dataframe(self, tab_name):
         return self.model.get_patients_dataframe(tab_name)

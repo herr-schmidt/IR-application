@@ -1272,7 +1272,7 @@ class SolutionVisualizer:
         return operatedPatients
 
 
-    def plot_graph(self, solution, file_name):
+    def plot_graph(self, solution):
         if(solution is None):
             print("No solution exists to be plotted!")
             return
@@ -1364,4 +1364,4 @@ class SolutionVisualizer:
         fig.update_yaxes(categoryorder='category descending')
         
         # fig.show()
-        offline.plot(fig, filename="ex_load_files/" + file_name + ".html", auto_open=False)
+        offline.plot(fig, filename="planning.html", auto_open=False)

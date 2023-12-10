@@ -1,12 +1,11 @@
-import sys
 import typing
 
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtCore import QUrl, QAbstractTableModel, QModelIndex
 from PySide6.QtGui import Qt
-from PySide6.QtUiTools import QUiLoader
 from PySide6.QtWidgets import QFileDialog
 
+from const import IRConstants
 from main_window import Ui_MainWindow
 from solver_options_panel import Ui_SolverOptionsPopup
 from planning_waiting_panel import Ui_PlanningProgressPopup
@@ -65,10 +64,13 @@ class PlanningProgressPopup(QtWidgets.QWidget, Ui_PlanningProgressPopup):
 class PlanningThread(QtCore.QThread):
     planning_terminated = QtCore.Signal()
 
+    def __init__(self, controller):
+        super().__init__()
+
+        self.controller = controller
+
     def run(self):
-        for i in range(500000):
-            print(i)
-        self.planning_terminated.emit()
+        self.controller.compute_solution(self.planning_terminated)
 
 
 class IRView(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -79,29 +81,61 @@ class IRView(QtWidgets.QMainWindow, Ui_MainWindow):
         self.solver_options_popup = None
         self.controller = None
         self.planning_progress_popup = None
+        self.planning_thread = None
 
         self.import_patients_list_button.clicked.connect(self.import_callback)
         self.solver_options_button.clicked.connect(self.open_solver_options_popup)
         self.launch_planning_button.clicked.connect(self.on_planning_start)
 
-        self.planning_thread = PlanningThread()
-        self.planning_thread.planning_terminated.connect(self.on_planning_end)
 
         # self.web_engine_view.load(QUrl.fromLocalFile("/ex.html"))
 
     def on_planning_start(self):
         self.planning_progress_popup = PlanningProgressPopup()
-        # self.planning_progress_popup.setupUi()
-        # self.planning_progress_popup.show()
-
         self.planning_thread.start()
 
     def on_planning_end(self):
         self.planning_progress_popup.close()
 
+        # update solution summary
+        self.update_patients_summary()
+
+        # update interactive planning tab with plotly graph
+        self.web_engine_view.load(QUrl.fromLocalFile("/planning.html"))
+
+    def update_patients_summary(self):
+        solution_summary = self.controller.compute_solution_summary()
+
+        total_patients = solution_summary[IRConstants.TOTAL_PATIENTS]
+        anesthesia_patients = solution_summary[IRConstants.ANESTHESIA_PATIENTS]
+        infectious_patients = solution_summary[IRConstants.INFECTIOUS_PATIENTS]
+        selected_patients = solution_summary[IRConstants.SELECTED_PATIENTS]
+        anesthesia_selected_patients = solution_summary[IRConstants.ANESTHESIA_SELECTED_PATIENTS]
+        infectious_selected_patients = solution_summary[IRConstants.INFECTIOUS_SELECTED_PATIENTS]
+        delayed_selected_patients = solution_summary[IRConstants.DELAYED_SELECTED_PATIENTS]
+        average_OR1_OR2_utilization = solution_summary[IRConstants.AVERAGE_OR1_OR2_UTILIZATION]
+        average_OR3_OR4_utilization = solution_summary[IRConstants.AVERAGE_OR3_OR4_UTILIZATION]
+        specialty_1_selected_ratio = solution_summary[IRConstants.SPECIALTY_1_SELECTION_RATIO]
+        specialty_2_selected_ratio = solution_summary[IRConstants.SPECIALTY_2_SELECTION_RATIO]
+
+        self.total_patients_summary_entry.setText(str(total_patients))
+        self.total_anesthesia_patients_summary_entry.setText(str(anesthesia_patients))
+        self.total_infectious_patients_summary_entry.setText(str(infectious_patients))
+
+        self.selected_patients_label.setText(selected_patients)
+        self.anesthesia_selected_patients_label.setText(anesthesia_selected_patients)
+        self.infectious_selected_patients_label.setText(infectious_selected_patients)
+        self.delayed_selected_patients_label.setText(delayed_selected_patients)
+        self.average_OR1_OR2_utilization_label.setText(average_OR1_OR2_utilization)
+        self.average_OR3_OR4_utilization_label.setText(average_OR3_OR4_utilization)
+        self.specialty_1_selected_ratio_label.setText(specialty_1_selected_ratio)
+        self.specialty_2_selected_ratio_label.setText(specialty_2_selected_ratio)
+
     def import_callback(self):
         filepath, _ = QFileDialog.getOpenFileName(filter="File Excel (*.xlsx;*.xls)")
         self.controller.import_excel(filepath)
+
+        self.update_patients_summary()
 
     def open_solver_options_popup(self):
         self.solver_options_popup = SolverOptionsPopup()
@@ -114,6 +148,9 @@ class IRView(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def bind_controller(self, controller):
         self.controller = controller
+
+        self.planning_thread = PlanningThread(self.controller)
+        self.planning_thread.planning_terminated.connect(self.on_planning_end)
 
     def initialize_input_table(self, patients_list_dataframe):
         table_model = TableModel(patients_list_dataframe)

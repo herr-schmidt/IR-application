@@ -18,7 +18,6 @@ class Patient:
 
 
 class InterventionalRadiologyModel():
-
     PATIENTS_LIST_HEADER = {IRConstants.PATIENT_NAME.value: [],
                             IRConstants.PATIENT_SURNAME.value: [],
                             IRConstants.PATIENT_SPECIALTY.value: [],
@@ -69,23 +68,25 @@ class InterventionalRadiologyModel():
         planning_empty_dataframe = DataFrame(data=self.PLANNING_HEADER)
         self.patients_dataframes = [patients_list_dataframe, planning_empty_dataframe]
 
-    def compute_solution(self, tab_name):
-        parameter_dict = self.initialize_solver_data(tab_name)
+    def compute_solution(self):
+        parameter_dict = self.initialize_solver_data()
         planner = VanillaLBBDPlanner(timeLimit=self.solver_parameters[IRConstants.SOLVER_TIME_LIMIT],
-                                       gap=self.solver_parameters[IRConstants.SOLVER_GAP] / 100, iterations_cap=10, solver="cplex")
+                                     gap=0.1, # self.solver_parameters[IRConstants.SOLVER_GAP] / 100,
+                                     iterations_cap=10,
+                                     solver="cbc")
         planner.solve_model(parameter_dict)
         run_info = planner.extract_run_info()
         solution = planner.extract_solution()
 
-        self.save_planning_graph(tab_name, solution)
-        self.store_solution_as_dataframe(tab_name, solution, run_info)
+        self.save_planning_graph(solution)
+        self.store_solution_as_dataframe(solution, run_info)
 
-    def save_planning_graph(self, tab_name, solution):
+    def save_planning_graph(self, solution):
         if solution:
             sv = SolutionVisualizer()
-            sv.plot_graph(solution, file_name=tab_name)
+            sv.plot_graph(solution)
 
-    def store_solution_as_dataframe(self, tab_name, solution, run_info):
+    def store_solution_as_dataframe(self, solution, run_info):
         if solution:
             names = []
             surnames = []
@@ -112,27 +113,30 @@ class InterventionalRadiologyModel():
                     surgery_times.append(target_time.time())
 
                     def get_delay(delay): return "Sì" if delay else "No"
+
                     delays.append(get_delay(patient.delay))
 
                     def get_anesthetist(anesthetist): return "A" + str(anesthetist) if anesthetist > 0 else ""
+
                     anesthetists.append(get_anesthetist(patient.anesthetist))
 
                     def get_infection_info(infection): return "Sì" if infection else "No"
+
                     infections.append(get_infection_info(patient.infection))
 
-            self.patients_dataframes[tab_name][1][IRConstants.PATIENT_NAME.value] = Series(names)
-            self.patients_dataframes[tab_name][1][IRConstants.PATIENT_SURNAME.value] = Series(surnames)
-            self.patients_dataframes[tab_name][1][IRConstants.PATIENT_SURGERY_ROOM.value] = Series(operating_rooms)
-            self.patients_dataframes[tab_name][1][IRConstants.PATIENT_SURGERY_DAY.value] = Series(surgery_dates)
-            self.patients_dataframes[tab_name][1][IRConstants.PATIENT_SURGERY_TIME.value] = Series(surgery_times)
-            self.patients_dataframes[tab_name][1][IRConstants.PATIENT_DELAY.value] = Series(delays)
-            self.patients_dataframes[tab_name][1][IRConstants.PATIENT_ANESTHETIST.value] = Series(anesthetists)
-            self.patients_dataframes[tab_name][1][IRConstants.PATIENT_INFECTIONS.value] = Series(infections)
+            self.patients_dataframes[1][IRConstants.PATIENT_NAME.value] = Series(names)
+            self.patients_dataframes[1][IRConstants.PATIENT_SURNAME.value] = Series(surnames)
+            self.patients_dataframes[1][IRConstants.PATIENT_SURGERY_ROOM.value] = Series(operating_rooms)
+            self.patients_dataframes[1][IRConstants.PATIENT_SURGERY_DAY.value] = Series(surgery_dates)
+            self.patients_dataframes[1][IRConstants.PATIENT_SURGERY_TIME.value] = Series(surgery_times)
+            self.patients_dataframes[1][IRConstants.PATIENT_DELAY.value] = Series(delays)
+            self.patients_dataframes[1][IRConstants.PATIENT_ANESTHETIST.value] = Series(anesthetists)
+            self.patients_dataframes[1][IRConstants.PATIENT_INFECTIONS.value] = Series(infections)
 
-            self.runs_statistics[tab_name] = run_info
+            self.runs_statistics = run_info
 
-    def initialize_solver_data(self, tab_name):
-        data_frame = self.patients_dataframes[tab_name][0]
+    def initialize_solver_data(self):
+        data_frame = self.patients_dataframes[0]
 
         patients = len(data_frame)
         specialties_number = 2
@@ -193,11 +197,13 @@ class InterventionalRadiologyModel():
 
     # we assume the same timespan for each room, on each day
     def generate_room_availability_table(self, operating_rooms, time_horizon):
-        return {(k, t): self.solver_parameters[IRConstants.SOLVER_OPERATING_ROOM_TIME] for k in range(1, operating_rooms + 1) for t in range(1, time_horizon + 1)}
+        return {(k, t): self.solver_parameters[IRConstants.SOLVER_OPERATING_ROOM_TIME] for k in range(1, operating_rooms + 1) for t in
+                range(1, time_horizon + 1)}
 
     # we assume same availability for each anesthetist
     def generate_anesthetists_availability_table(self, time_horizon):
-        return {(a, t): self.solver_parameters[IRConstants.SOLVER_ANESTHETISTS_TIME] for a in range(1, self.solver_parameters[IRConstants.SOLVER_ANESTHETISTS] + 1) for t in range(1, time_horizon + 1)}
+        return {(a, t): self.solver_parameters[IRConstants.SOLVER_ANESTHETISTS_TIME] for a in
+                range(1, self.solver_parameters[IRConstants.SOLVER_ANESTHETISTS] + 1) for t in range(1, time_horizon + 1)}
 
     def generate_room_specialty_mapping(self, specialties, operating_rooms, time_horizon):
         table = {(j, k, t): 0 for j in range(1, specialties + 1) for k in range(1, operating_rooms + 1) for t in range(1, time_horizon + 1)}
@@ -269,16 +275,17 @@ class InterventionalRadiologyModel():
 
     # assume same robustness_parameter value for each (k, t) slot (single delay type q = 1)
     def compute_robustness_table(self, operating_rooms, time_horizon):
-        return {(1, k, t): self.solver_parameters[IRConstants.SOLVER_ROBUSTNESS_PARAM] for k in range(1, operating_rooms + 1) for t in range(1, time_horizon + 1)}
+        return {(1, k, t): self.solver_parameters[IRConstants.SOLVER_ROBUSTNESS_PARAM] for k in range(1, operating_rooms + 1) for t in
+                range(1, time_horizon + 1)}
 
-    def compute_solution_summary(self, tab_name):
-        current_data_frame = self.patients_dataframes[tab_name][0]
+    def compute_solution_summary(self):
+        current_data_frame = self.patients_dataframes[0]
 
         total_patients = len(current_data_frame)
         anesthesia_patients = current_data_frame.query(str(IRConstants.PATIENT_ANESTHESIA.value) + " == True").shape[0]
         infectious_patients = current_data_frame.query(str(IRConstants.PATIENT_INFECTIONS.value) + " == True").shape[0]
 
-        planning_dataframe = self.patients_dataframes[tab_name][1]
+        planning_dataframe = self.patients_dataframes[1]
 
         selected_patients = "N/A"
         anesthesia_selected_patients = "N/A"
@@ -300,7 +307,7 @@ class InterventionalRadiologyModel():
             infectious_selected_patients = str(len(planning_dataframe.query(IRConstants.PATIENT_INFECTIONS.value + " == 'Sì'")))
             delayed_selected_patients = str(len(planning_dataframe.query(IRConstants.PATIENT_DELAY.value + " == 'Sì'")))
 
-            run_info = self.runs_statistics[tab_name]
+            run_info = self.runs_statistics
             average_OR1_OR2_utilization = str(round(run_info["specialty_1_OR_utilization"] * 100, 2)) + "%"
             average_OR3_OR4_utilization = str(round(run_info["specialty_2_OR_utilization"] * 100, 2)) + "%"
             specialty_1_selected_ratio = str(round(run_info["specialty_1_selection_ratio"] * 100, 2)) + "%"
