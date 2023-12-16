@@ -1,3 +1,5 @@
+import copy
+
 from pandas import read_excel, Timestamp, DataFrame, ExcelWriter, Series
 from datetime import datetime, timedelta
 from math import floor
@@ -42,44 +44,46 @@ class InterventionalRadiologyModel():
     DEFAULT_TAB_NAME = "Scheda "
 
     def __init__(self):
-        self.solver_parameters = {IRConstants.SOLVER_GAP: 0.0,
-                                  IRConstants.SOLVER_TIME_LIMIT: 600,
-                                  IRConstants.SOLVER_ROBUSTNESS_PARAM: 2,
-                                  IRConstants.SOLVER_OPERATING_ROOM_TIME: 270,
-                                  IRConstants.SOLVER_ANESTHETISTS: 1,
-                                  IRConstants.SOLVER_ANESTHETISTS_TIME: 270
-                                  }
+        self.default_solver_parameters = {IRConstants.SOLVER_GAP: 0.0,
+                                          IRConstants.SOLVER_TIME_LIMIT: 600,
+                                          IRConstants.SOLVER_ROBUSTNESS_PARAM: 2,
+                                          IRConstants.SOLVER_OPERATING_ROOM_TIME: 270,
+                                          IRConstants.SOLVER_ANESTHETISTS: 1,
+                                          IRConstants.SOLVER_ANESTHETISTS_TIME: 270
+                                          }
 
-        self.patients_dataframes = dict()  # dict of length 2 lists: 0 -> patients list; 1 -> selected patients list
+        self.solver_parameters = copy.deepcopy(self.default_solver_parameters)
+
+        self.patients_dataframes = {0: DataFrame([]), 1: DataFrame([])}  # dict of length 2 lists: 0 -> patients list; 1 -> selected patients list
+        self.summary = None
+        self.compute_summary()
+
         self.runs_statistics = dict()
-
-        self.planning_number = 0
 
     def update_solver_parameters(self, new_solver_parameters):
         self.solver_parameters = new_solver_parameters
-
-    def get_new_tab_name(self):
-        tab_name = self.DEFAULT_TAB_NAME + str(self.planning_number)
-        self.planning_number += 1
-        return tab_name
 
     def import_from_excel(self, filepath):
         patients_list_dataframe = read_excel(filepath)
         planning_empty_dataframe = DataFrame(data=self.PLANNING_HEADER)
         self.patients_dataframes = [patients_list_dataframe, planning_empty_dataframe]
 
+        self.compute_summary()
+
     def compute_solution(self):
         parameter_dict = self.initialize_solver_data()
         planner = VanillaLBBDPlanner(timeLimit=self.solver_parameters[IRConstants.SOLVER_TIME_LIMIT],
-                                     gap=0.1, # self.solver_parameters[IRConstants.SOLVER_GAP] / 100,
+                                     gap=self.solver_parameters[IRConstants.SOLVER_GAP] / 100,
                                      iterations_cap=10,
-                                     solver="cbc")
+                                     solver="cplex")
         planner.solve_model(parameter_dict)
         run_info = planner.extract_run_info()
         solution = planner.extract_solution()
 
         self.save_planning_graph(solution)
         self.store_solution_as_dataframe(solution, run_info)
+
+        self.compute_summary()
 
     def save_planning_graph(self, solution):
         if solution:
@@ -278,28 +282,33 @@ class InterventionalRadiologyModel():
         return {(1, k, t): self.solver_parameters[IRConstants.SOLVER_ROBUSTNESS_PARAM] for k in range(1, operating_rooms + 1) for t in
                 range(1, time_horizon + 1)}
 
-    def compute_solution_summary(self):
-        current_data_frame = self.patients_dataframes[0]
+    def compute_summary(self):
+        waiting_list_dataframe = self.patients_dataframes[0]
 
-        total_patients = len(current_data_frame)
-        anesthesia_patients = current_data_frame.query(str(IRConstants.PATIENT_ANESTHESIA.value) + " == True").shape[0]
-        infectious_patients = current_data_frame.query(str(IRConstants.PATIENT_INFECTIONS.value) + " == True").shape[0]
+        total_patients = ""
+        anesthesia_patients = ""
+        infectious_patients = ""
+
+        if not waiting_list_dataframe.empty:
+            total_patients = len(waiting_list_dataframe)
+            anesthesia_patients = waiting_list_dataframe.query(str(IRConstants.PATIENT_ANESTHESIA.value) + " == True").shape[0]
+            infectious_patients = waiting_list_dataframe.query(str(IRConstants.PATIENT_INFECTIONS.value) + " == True").shape[0]
 
         planning_dataframe = self.patients_dataframes[1]
 
-        selected_patients = "N/A"
-        anesthesia_selected_patients = "N/A"
-        infectious_selected_patients = "N/A"
-        delayed_selected_patients = "N/A"
-        average_OR1_OR2_utilization = "N/A"
-        average_OR3_OR4_utilization = "N/A"
-        specialty_1_selected_ratio = "N/A"
-        specialty_2_selected_ratio = "N/A"
+        selected_patients = ""
+        anesthesia_selected_patients = ""
+        infectious_selected_patients = ""
+        delayed_selected_patients = ""
+        average_OR1_OR2_utilization = ""
+        average_OR3_OR4_utilization = ""
+        specialty_1_selected_ratio = ""
+        specialty_2_selected_ratio = ""
 
         if not planning_dataframe.empty:
             selected_patients = (str(len(planning_dataframe))
                                  + " ("
-                                 + str(round(len(planning_dataframe) / len(current_data_frame) * 100, 2))
+                                 + str(round(len(planning_dataframe) / len(waiting_list_dataframe) * 100, 2))
                                  + "%)"
                                  )
 
@@ -313,18 +322,18 @@ class InterventionalRadiologyModel():
             specialty_1_selected_ratio = str(round(run_info["specialty_1_selection_ratio"] * 100, 2)) + "%"
             specialty_2_selected_ratio = str(round(run_info["specialty_2_selection_ratio"] * 100, 2)) + "%"
 
-        return {IRConstants.TOTAL_PATIENTS: total_patients,
-                IRConstants.ANESTHESIA_PATIENTS: anesthesia_patients,
-                IRConstants.INFECTIOUS_PATIENTS: infectious_patients,
-                IRConstants.SELECTED_PATIENTS: selected_patients,
-                IRConstants.ANESTHESIA_SELECTED_PATIENTS: anesthesia_selected_patients,
-                IRConstants.INFECTIOUS_SELECTED_PATIENTS: infectious_selected_patients,
-                IRConstants.DELAYED_SELECTED_PATIENTS: delayed_selected_patients,
-                IRConstants.AVERAGE_OR1_OR2_UTILIZATION: average_OR1_OR2_utilization,
-                IRConstants.AVERAGE_OR3_OR4_UTILIZATION: average_OR3_OR4_utilization,
-                IRConstants.SPECIALTY_1_SELECTION_RATIO: specialty_1_selected_ratio,
-                IRConstants.SPECIALTY_2_SELECTION_RATIO: specialty_2_selected_ratio
-                }
+        self.summary = {IRConstants.TOTAL_PATIENTS: total_patients,
+                        IRConstants.ANESTHESIA_PATIENTS: anesthesia_patients,
+                        IRConstants.INFECTIOUS_PATIENTS: infectious_patients,
+                        IRConstants.SELECTED_PATIENTS: selected_patients,
+                        IRConstants.ANESTHESIA_SELECTED_PATIENTS: anesthesia_selected_patients,
+                        IRConstants.INFECTIOUS_SELECTED_PATIENTS: infectious_selected_patients,
+                        IRConstants.DELAYED_SELECTED_PATIENTS: delayed_selected_patients,
+                        IRConstants.AVERAGE_OR1_OR2_UTILIZATION: average_OR1_OR2_utilization,
+                        IRConstants.AVERAGE_OR3_OR4_UTILIZATION: average_OR3_OR4_utilization,
+                        IRConstants.SPECIALTY_1_SELECTION_RATIO: specialty_1_selected_ratio,
+                        IRConstants.SPECIALTY_2_SELECTION_RATIO: specialty_2_selected_ratio
+                        } | self.solver_parameters
 
     def create_empty_dataframe(self, tab_name):
         empty_patients_list_dataframe = DataFrame(data=self.PATIENTS_LIST_HEADER)
@@ -339,9 +348,6 @@ class InterventionalRadiologyModel():
 
     def get_planning_dataframe(self, tab_name):
         return self.patients_dataframes[tab_name][1]
-
-    def get_solver_parameters(self):
-        return self.solver_parameters
 
     def export_to_excel(self, tab_name, file_name):
         writer = ExcelWriter(file_name, engine="xlsxwriter")

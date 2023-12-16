@@ -118,12 +118,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(5, QFormLayout.LabelRole, self.label_6)
 
-        self.lineEdit_4 = QLineEdit(self.summary_frame)
-        self.lineEdit_4.setObjectName(u"lineEdit_4")
-        self.lineEdit_4.setStyleSheet(u"border: 0px;")
-        self.lineEdit_4.setReadOnly(True)
+        self.robustness_entry = QLineEdit(self.summary_frame)
+        self.robustness_entry.setObjectName(u"robustness_entry")
+        self.robustness_entry.setStyleSheet(u"border: 0px;")
+        self.robustness_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(5, QFormLayout.FieldRole, self.lineEdit_4)
+        self.formLayout.setWidget(5, QFormLayout.FieldRole, self.robustness_entry)
 
         self.label_7 = QLabel(self.summary_frame)
         self.label_7.setObjectName(u"label_7")
@@ -132,12 +132,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(6, QFormLayout.LabelRole, self.label_7)
 
-        self.lineEdit_5 = QLineEdit(self.summary_frame)
-        self.lineEdit_5.setObjectName(u"lineEdit_5")
-        self.lineEdit_5.setStyleSheet(u"border: 0px;")
-        self.lineEdit_5.setReadOnly(True)
+        self.operating_day_entry = QLineEdit(self.summary_frame)
+        self.operating_day_entry.setObjectName(u"operating_day_entry")
+        self.operating_day_entry.setStyleSheet(u"border: 0px;")
+        self.operating_day_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(6, QFormLayout.FieldRole, self.lineEdit_5)
+        self.formLayout.setWidget(6, QFormLayout.FieldRole, self.operating_day_entry)
 
         self.label_8 = QLabel(self.summary_frame)
         self.label_8.setObjectName(u"label_8")
@@ -146,12 +146,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(7, QFormLayout.LabelRole, self.label_8)
 
-        self.lineEdit_6 = QLineEdit(self.summary_frame)
-        self.lineEdit_6.setObjectName(u"lineEdit_6")
-        self.lineEdit_6.setStyleSheet(u"border: 0px;")
-        self.lineEdit_6.setReadOnly(True)
+        self.anesthetists_entry = QLineEdit(self.summary_frame)
+        self.anesthetists_entry.setObjectName(u"anesthetists_entry")
+        self.anesthetists_entry.setStyleSheet(u"border: 0px;")
+        self.anesthetists_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(7, QFormLayout.FieldRole, self.lineEdit_6)
+        self.formLayout.setWidget(7, QFormLayout.FieldRole, self.anesthetists_entry)
 
         self.label_9 = QLabel(self.summary_frame)
         self.label_9.setObjectName(u"label_9")
@@ -160,12 +160,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(8, QFormLayout.LabelRole, self.label_9)
 
-        self.lineEdit_7 = QLineEdit(self.summary_frame)
-        self.lineEdit_7.setObjectName(u"lineEdit_7")
-        self.lineEdit_7.setStyleSheet(u"border: 0px;")
-        self.lineEdit_7.setReadOnly(True)
+        self.anesthetists_availability_entry = QLineEdit(self.summary_frame)
+        self.anesthetists_availability_entry.setObjectName(u"anesthetists_availability_entry")
+        self.anesthetists_availability_entry.setStyleSheet(u"border: 0px;")
+        self.anesthetists_availability_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(8, QFormLayout.FieldRole, self.lineEdit_7)
+        self.formLayout.setWidget(8, QFormLayout.FieldRole, self.anesthetists_availability_entry)
 
         self.label_10 = QLabel(self.summary_frame)
         self.label_10.setObjectName(u"label_10")
@@ -174,12 +174,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(9, QFormLayout.LabelRole, self.label_10)
 
-        self.lineEdit_8 = QLineEdit(self.summary_frame)
-        self.lineEdit_8.setObjectName(u"lineEdit_8")
-        self.lineEdit_8.setStyleSheet(u"border: 0px;")
-        self.lineEdit_8.setReadOnly(True)
+        self.relative_gap_entry = QLineEdit(self.summary_frame)
+        self.relative_gap_entry.setObjectName(u"relative_gap_entry")
+        self.relative_gap_entry.setStyleSheet(u"border: 0px;")
+        self.relative_gap_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(9, QFormLayout.FieldRole, self.lineEdit_8)
+        self.formLayout.setWidget(9, QFormLayout.FieldRole, self.relative_gap_entry)
 
         self.label_11 = QLabel(self.summary_frame)
         self.label_11.setObjectName(u"label_11")
@@ -188,12 +188,12 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(10, QFormLayout.LabelRole, self.label_11)
 
-        self.lineEdit_9 = QLineEdit(self.summary_frame)
-        self.lineEdit_9.setObjectName(u"lineEdit_9")
-        self.lineEdit_9.setStyleSheet(u"border: 0px;")
-        self.lineEdit_9.setReadOnly(True)
+        self.time_limit_entry = QLineEdit(self.summary_frame)
+        self.time_limit_entry.setObjectName(u"time_limit_entry")
+        self.time_limit_entry.setStyleSheet(u"border: 0px;")
+        self.time_limit_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(10, QFormLayout.FieldRole, self.lineEdit_9)
+        self.formLayout.setWidget(10, QFormLayout.FieldRole, self.time_limit_entry)
 
         self.label_13 = QLabel(self.summary_frame)
         self.label_13.setObjectName(u"label_13")
@@ -260,61 +260,61 @@ class Ui_MainWindow(object):
 
         self.formLayout.setWidget(11, QFormLayout.SpanningRole, self.label_12)
 
-        self.selected_patients_label = QLineEdit(self.summary_frame)
-        self.selected_patients_label.setObjectName(u"selected_patients_label")
-        self.selected_patients_label.setStyleSheet(u"border: 0px;")
-        self.selected_patients_label.setReadOnly(True)
+        self.selected_patients_entry = QLineEdit(self.summary_frame)
+        self.selected_patients_entry.setObjectName(u"selected_patients_entry")
+        self.selected_patients_entry.setStyleSheet(u"border: 0px;")
+        self.selected_patients_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(12, QFormLayout.FieldRole, self.selected_patients_label)
+        self.formLayout.setWidget(12, QFormLayout.FieldRole, self.selected_patients_entry)
 
-        self.anesthesia_selected_patients_label = QLineEdit(self.summary_frame)
-        self.anesthesia_selected_patients_label.setObjectName(u"anesthesia_selected_patients_label")
-        self.anesthesia_selected_patients_label.setStyleSheet(u"border: 0px;")
-        self.anesthesia_selected_patients_label.setReadOnly(True)
+        self.anesthesia_selected_patients_entry = QLineEdit(self.summary_frame)
+        self.anesthesia_selected_patients_entry.setObjectName(u"anesthesia_selected_patients_entry")
+        self.anesthesia_selected_patients_entry.setStyleSheet(u"border: 0px;")
+        self.anesthesia_selected_patients_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(13, QFormLayout.FieldRole, self.anesthesia_selected_patients_label)
+        self.formLayout.setWidget(13, QFormLayout.FieldRole, self.anesthesia_selected_patients_entry)
 
-        self.infectious_selected_patients_label = QLineEdit(self.summary_frame)
-        self.infectious_selected_patients_label.setObjectName(u"infectious_selected_patients_label")
-        self.infectious_selected_patients_label.setStyleSheet(u"border: 0px;")
-        self.infectious_selected_patients_label.setReadOnly(True)
+        self.infectious_selected_patients_entry = QLineEdit(self.summary_frame)
+        self.infectious_selected_patients_entry.setObjectName(u"infectious_selected_patients_entry")
+        self.infectious_selected_patients_entry.setStyleSheet(u"border: 0px;")
+        self.infectious_selected_patients_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(14, QFormLayout.FieldRole, self.infectious_selected_patients_label)
+        self.formLayout.setWidget(14, QFormLayout.FieldRole, self.infectious_selected_patients_entry)
 
-        self.delayed_selected_patients_label = QLineEdit(self.summary_frame)
-        self.delayed_selected_patients_label.setObjectName(u"delayed_selected_patients_label")
-        self.delayed_selected_patients_label.setStyleSheet(u"border: 0px;")
-        self.delayed_selected_patients_label.setReadOnly(True)
+        self.delayed_selected_patients_entry = QLineEdit(self.summary_frame)
+        self.delayed_selected_patients_entry.setObjectName(u"delayed_selected_patients_entry")
+        self.delayed_selected_patients_entry.setStyleSheet(u"border: 0px;")
+        self.delayed_selected_patients_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(15, QFormLayout.FieldRole, self.delayed_selected_patients_label)
+        self.formLayout.setWidget(15, QFormLayout.FieldRole, self.delayed_selected_patients_entry)
 
-        self.average_OR1_OR2_utilization_label = QLineEdit(self.summary_frame)
-        self.average_OR1_OR2_utilization_label.setObjectName(u"average_OR1_OR2_utilization_label")
-        self.average_OR1_OR2_utilization_label.setStyleSheet(u"border: 0px;")
-        self.average_OR1_OR2_utilization_label.setReadOnly(True)
+        self.average_OR1_OR2_utilization_entry = QLineEdit(self.summary_frame)
+        self.average_OR1_OR2_utilization_entry.setObjectName(u"average_OR1_OR2_utilization_entry")
+        self.average_OR1_OR2_utilization_entry.setStyleSheet(u"border: 0px;")
+        self.average_OR1_OR2_utilization_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(16, QFormLayout.FieldRole, self.average_OR1_OR2_utilization_label)
+        self.formLayout.setWidget(16, QFormLayout.FieldRole, self.average_OR1_OR2_utilization_entry)
 
-        self.average_OR3_OR4_utilization_label = QLineEdit(self.summary_frame)
-        self.average_OR3_OR4_utilization_label.setObjectName(u"average_OR3_OR4_utilization_label")
-        self.average_OR3_OR4_utilization_label.setStyleSheet(u"border: 0px;")
-        self.average_OR3_OR4_utilization_label.setReadOnly(True)
+        self.average_OR3_OR4_utilization_entry = QLineEdit(self.summary_frame)
+        self.average_OR3_OR4_utilization_entry.setObjectName(u"average_OR3_OR4_utilization_entry")
+        self.average_OR3_OR4_utilization_entry.setStyleSheet(u"border: 0px;")
+        self.average_OR3_OR4_utilization_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(17, QFormLayout.FieldRole, self.average_OR3_OR4_utilization_label)
+        self.formLayout.setWidget(17, QFormLayout.FieldRole, self.average_OR3_OR4_utilization_entry)
 
-        self.specialty_1_selected_ratio_label = QLineEdit(self.summary_frame)
-        self.specialty_1_selected_ratio_label.setObjectName(u"specialty_1_selected_ratio_label")
-        self.specialty_1_selected_ratio_label.setStyleSheet(u"border: 0px;")
-        self.specialty_1_selected_ratio_label.setReadOnly(True)
+        self.specialty_1_selected_ratio_entry = QLineEdit(self.summary_frame)
+        self.specialty_1_selected_ratio_entry.setObjectName(u"specialty_1_selected_ratio_entry")
+        self.specialty_1_selected_ratio_entry.setStyleSheet(u"border: 0px;")
+        self.specialty_1_selected_ratio_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(18, QFormLayout.FieldRole, self.specialty_1_selected_ratio_label)
+        self.formLayout.setWidget(18, QFormLayout.FieldRole, self.specialty_1_selected_ratio_entry)
 
-        self.specialty_2_selected_ratio_label = QLineEdit(self.summary_frame)
-        self.specialty_2_selected_ratio_label.setObjectName(u"specialty_2_selected_ratio_label")
-        self.specialty_2_selected_ratio_label.setStyleSheet(u"border: 0px;")
-        self.specialty_2_selected_ratio_label.setReadOnly(True)
+        self.specialty_2_selected_ratio_entry = QLineEdit(self.summary_frame)
+        self.specialty_2_selected_ratio_entry.setObjectName(u"specialty_2_selected_ratio_entry")
+        self.specialty_2_selected_ratio_entry.setStyleSheet(u"border: 0px;")
+        self.specialty_2_selected_ratio_entry.setReadOnly(True)
 
-        self.formLayout.setWidget(19, QFormLayout.FieldRole, self.specialty_2_selected_ratio_label)
+        self.formLayout.setWidget(19, QFormLayout.FieldRole, self.specialty_2_selected_ratio_entry)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
