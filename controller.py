@@ -36,13 +36,6 @@ class Controller():
         self.view.solver_options_popup.solver_options = self.model.solver_parameters
         self.view.solver_options_popup.initialize_sliders()
 
-    def create_empty_planning(self):
-        tab_name = self.get_new_tab_name()
-
-        empty_dataframe = self.model.create_empty_dataframe(tab_name)
-        self.view.initialize_input_table(tab_name=tab_name,
-                                         data_frame=empty_dataframe)
-
     def get_new_tab_name(self):
         return self.model.get_new_tab_name()
 
@@ -51,6 +44,7 @@ class Controller():
         planning_terminated.emit()
 
         self.view.update_summary(self.model.summary)
+        self.view.initialize_output_table(selected_patients_dataframe=self.model.patients_dataframes[1])
 
     def get_patients_dataframe(self, tab_name):
         return self.model.get_patients_dataframe(tab_name)

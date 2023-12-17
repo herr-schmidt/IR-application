@@ -218,3 +218,9 @@ class IRView(QtWidgets.QMainWindow, Ui_MainWindow):
     def initialize_input_table(self, patients_list_dataframe):
         table_model = TableModel(patients_list_dataframe)
         self.patients_list_table.setModel(table_model)
+        self.patients_list_table.resizeColumnsToContents()
+
+    def initialize_output_table(self, selected_patients_dataframe):
+        table_model = TableModel(selected_patients_dataframe)
+        self.selected_patients_list_table.setModel(table_model)
+        self.selected_patients_list_table.resizeColumnsToContents()

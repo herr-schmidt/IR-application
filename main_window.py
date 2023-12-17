@@ -42,7 +42,7 @@ class Ui_MainWindow(object):
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.summary_frame.sizePolicy().hasHeightForWidth())
         self.summary_frame.setSizePolicy(sizePolicy1)
-        self.summary_frame.setMaximumSize(QSize(280, 16777215))
+        self.summary_frame.setMaximumSize(QSize(290, 16777215))
         self.summary_frame.setStyleSheet(u"QFrame{\n"
 "	border: 1px solid \"#DFDFDF\";\n"
 "   /*\n"
@@ -342,6 +342,9 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabPosition(QTabWidget.North)
         self.tabWidget.setTabShape(QTabWidget.Rounded)
         self.tabWidget.setElideMode(Qt.ElideNone)
+        self.tabWidget.setDocumentMode(False)
+        self.tabWidget.setTabsClosable(False)
+        self.tabWidget.setMovable(False)
         self.tabWidget.setTabBarAutoHide(False)
         self.patients_list_tab = QWidget()
         self.patients_list_tab.setObjectName(u"patients_list_tab")
@@ -363,14 +366,15 @@ class Ui_MainWindow(object):
         self.planning_tab.setObjectName(u"planning_tab")
         self.verticalLayout_3 = QVBoxLayout(self.planning_tab)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.tableView_2 = QTableView(self.planning_tab)
-        self.tableView_2.setObjectName(u"tableView_2")
-        self.tableView_2.setStyleSheet(u"")
-        self.tableView_2.setFrameShadow(QFrame.Raised)
-        self.tableView_2.horizontalHeader().setStretchLastSection(True)
-        self.tableView_2.verticalHeader().setCascadingSectionResizes(True)
+        self.selected_patients_list_table = QTableView(self.planning_tab)
+        self.selected_patients_list_table.setObjectName(u"selected_patients_list_table")
+        self.selected_patients_list_table.setStyleSheet(u"")
+        self.selected_patients_list_table.setFrameShadow(QFrame.Raised)
+        self.selected_patients_list_table.setSortingEnabled(True)
+        self.selected_patients_list_table.horizontalHeader().setStretchLastSection(True)
+        self.selected_patients_list_table.verticalHeader().setCascadingSectionResizes(True)
 
-        self.verticalLayout_3.addWidget(self.tableView_2)
+        self.verticalLayout_3.addWidget(self.selected_patients_list_table)
 
         self.tabWidget.addTab(self.planning_tab, "")
         self.interactive_planning_tab = QWidget()
@@ -418,11 +422,11 @@ class Ui_MainWindow(object):
         QWidget.setTabOrder(self.import_patients_list_button, self.launch_planning_button)
         QWidget.setTabOrder(self.launch_planning_button, self.tabWidget)
         QWidget.setTabOrder(self.tabWidget, self.solver_options_button)
-        QWidget.setTabOrder(self.solver_options_button, self.tableView_2)
+        QWidget.setTabOrder(self.solver_options_button, self.selected_patients_list_table)
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -446,8 +450,8 @@ class Ui_MainWindow(object):
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"Ritardi:", None))
         self.label_17.setText(QCoreApplication.translate("MainWindow", u"Utilizzo medio R.I. vascolare:", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"Utilizzo medio radiodiagnostica:", None))
-        self.label_19.setText(QCoreApplication.translate("MainWindow", u"Pazienti R.I. vascolare:", None))
-        self.label_20.setText(QCoreApplication.translate("MainWindow", u"Pazienti radiodiagnostica:", None))
+        self.label_19.setText(QCoreApplication.translate("MainWindow", u"Pazienti R.I. vascolare selezionati:", None))
+        self.label_20.setText(QCoreApplication.translate("MainWindow", u"Pazienti radiodiagnostica selezionati:", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"Soluzione", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Pazienti", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.patients_list_tab), QCoreApplication.translate("MainWindow", u"Lista pazienti", None))
