@@ -75,7 +75,7 @@ class InterventionalRadiologyModel():
         planner = VanillaLBBDPlanner(timeLimit=self.solver_parameters[IRConstants.SOLVER_TIME_LIMIT],
                                      gap=self.solver_parameters[IRConstants.SOLVER_GAP] / 100,
                                      iterations_cap=10,
-                                     solver="cbc")
+                                     solver="cplex")
         planner.solve_model(parameter_dict)
         run_info = planner.extract_run_info()
         solution = planner.extract_solution()
